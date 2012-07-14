@@ -40,6 +40,8 @@ static struct pci_device_id p54p_table[] __devinitdata = {
 	{ PCI_DEVICE(0x1260, 0x3877) },
 	/* Intersil PRISM Javelin/Xbow Wireless LAN adapter */
 	{ PCI_DEVICE(0x1260, 0x3886) },
+	/* Intersil PRISM Xbow Wireless LAN adapter (Symbol AP-300) */
+	{ PCI_DEVICE(0x1260, 0xffff) },
 	{ },
 };
 
@@ -196,6 +198,7 @@ static void p54p_check_rx_ring(struct ieee80211_hw *dev, u32 *index,
 	while (i != idx) {
 		u16 len;
 		struct sk_buff *skb;
+		dma_addr_t dma_addr;
 		desc = &ring[i];
 		len = le16_to_cpu(desc->len);
 		skb = rx_buf[i];
@@ -205,17 +208,28 @@ static void p54p_check_rx_ring(struct ieee80211_hw *dev, u32 *index,
 			i %= ring_limit;
 			continue;
 		}
+
+		if (unlikely(len > priv->common.rx_mtu)) {
+			if (net_ratelimit())
+				dev_err(&priv->pdev->dev, "rx'd frame size "
+					"exceeds length threshold.\n");
+
+			len = priv->common.rx_mtu;
+		}
+		dma_addr = le32_to_cpu(desc->host_addr);
+		pci_dma_sync_single_for_cpu(priv->pdev, dma_addr,
+			priv->common.rx_mtu + 32, PCI_DMA_FROMDEVICE);
 		skb_put(skb, len);
 
 		if (p54_rx(dev, skb)) {
-			pci_unmap_single(priv->pdev,
-					 le32_to_cpu(desc->host_addr),
-					 priv->common.rx_mtu + 32,
-					 PCI_DMA_FROMDEVICE);
+			pci_unmap_single(priv->pdev, dma_addr,
+				priv->common.rx_mtu + 32, PCI_DMA_FROMDEVICE);
 			rx_buf[i] = NULL;
-			desc->host_addr = 0;
+			desc->host_addr = cpu_to_le32(0);
 		} else {
 			skb_trim(skb, 0);
+			pci_dma_sync_single_for_device(priv->pdev, dma_addr,
+				priv->common.rx_mtu + 32, PCI_DMA_FROMDEVICE);
 			desc->len = cpu_to_le16(priv->common.rx_mtu + 32);
 		}
 
@@ -237,7 +251,7 @@ static void p54p_check_tx_ring(struct ieee80211_hw *dev, u32 *index,
 	u32 idx, i;
 
 	i = (*index) % ring_limit;
-	(*index) = idx = le32_to_cpu(ring_control->device_idx[1]);
+	(*index) = idx = le32_to_cpu(ring_control->device_idx[ring_index]);
 	idx %= ring_limit;
 
 	while (i != idx) {

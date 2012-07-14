@@ -1,7 +1,7 @@
 VERSION = 2
 PATCHLEVEL = 6
 SUBLEVEL = 32
-EXTRAVERSION = .11
+EXTRAVERSION = .38
 NAME = Man-Eating Seals of Antiquity
 
 # *DOCUMENTATION*
@@ -342,9 +342,9 @@ LINUXINCLUDE    := -Iinclude \
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -Werror \
+		   -Wno-uninitialized -Wno-undef \
 		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
+		   -Wno-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -524,7 +524,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS	+= -O2
+KBUILD_CFLAGS	+= -O4
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
