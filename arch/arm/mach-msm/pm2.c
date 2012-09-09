@@ -1816,6 +1816,8 @@ static int __init msm_pm_init(void)
 		     PMD_TYPE_SECT | PMD_SECT_AP_WRITE);
 	flush_pmd_entry(pmd);
 	msm_pm_pc_pgd = virt_to_phys(pc_pgd);
+	clean_caches((unsigned long)&msm_pm_pc_pgd, sizeof(msm_pm_pc_pgd),
+		     virt_to_phys(&msm_pm_pc_pgd));
 #endif
 
 	pm_power_off = msm_pm_power_off;
