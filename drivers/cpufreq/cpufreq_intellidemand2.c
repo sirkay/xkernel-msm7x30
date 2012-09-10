@@ -75,11 +75,11 @@ static void do_dbs_timer(struct work_struct *work);
 static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 				unsigned int event);
 
-#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
+#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND2
 static
 #endif
-struct cpufreq_governor cpufreq_gov_intellidemand = {
-       .name                   = "intellidemand",
+struct cpufreq_governor cpufreq_gov_intellidemand2 = {
+       .name                   = "intellidemand2",
        .governor               = cpufreq_governor_dbs,
        .max_transition_latency = TRANSITION_LATENCY_LIMIT,
        .owner                  = THIS_MODULE,
@@ -780,7 +780,7 @@ static struct attribute *dbs_attributes[] = {
 
 static struct attribute_group dbs_attr_group = {
 	.attrs = dbs_attributes,
-	.name = "intellidemand",
+	.name = "intellidemand2",
 };
 
 /************************** sysfs end ************************/
@@ -1643,12 +1643,12 @@ static int __init cpufreq_gov_dbs_init(void)
 #ifdef CONFIG_EARLYSUSPEND
 	register_early_suspend(&cpufreq_intellidemand_early_suspend_info);
 #endif
-	return cpufreq_register_governor(&cpufreq_gov_intellidemand);
+	return cpufreq_register_governor(&cpufreq_gov_intellidemand2);
 }
 
 static void __exit cpufreq_gov_dbs_exit(void)
 {
-	cpufreq_unregister_governor(&cpufreq_gov_intellidemand);
+	cpufreq_unregister_governor(&cpufreq_gov_intellidemand2);
 #ifdef CONFIG_EARLYSUSPEND
 	unregister_early_suspend(&cpufreq_intellidemand_early_suspend_info);
 #endif
@@ -1674,7 +1674,7 @@ MODULE_DESCRIPTION("'cpufreq_intellidemand' - An intelligent dynamic cpufreq gov
 	"Low Latency Frequency Transition capable processors");
 MODULE_LICENSE("GPL");
 
-#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
+#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND2
 fs_initcall(cpufreq_gov_dbs_init);
 #else
 module_init(cpufreq_gov_dbs_init);
