@@ -222,7 +222,8 @@ static int kgsl_iommu_start(struct kgsl_device *device)
 
 static int
 kgsl_iommu_unmap(void *mmu_specific_pt,
-		struct kgsl_memdesc *memdesc)
+		struct kgsl_memdesc *memdesc,
+		unsigned int *tlb_flags)
 {
 	int ret;
 	unsigned int range = memdesc->size;
@@ -244,6 +245,14 @@ kgsl_iommu_unmap(void *mmu_specific_pt,
 			"with err: %d\n", domain, gpuaddr,
 			range, ret);
 
+#ifdef CONFIG_KGSL_PER_PROCESS_PAGE_TABLE
+	/*
+	 * Flushing only required if per process pagetables are used. With
+	 * global case, flushing will happen inside iommu_map function
+	 */
+	if (!ret)
+		*tlb_flags = UINT_MAX;
+#endif
 	return 0;
 }
 

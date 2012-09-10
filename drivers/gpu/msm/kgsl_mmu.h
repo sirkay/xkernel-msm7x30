@@ -100,6 +100,7 @@ struct kgsl_pagetable {
 	struct gen_pool *pool;
 	struct list_head list;
 	unsigned int name;
+	unsigned int tlb_flags;
 	struct kobject *kobj;
 
 	struct {
@@ -131,7 +132,8 @@ struct kgsl_mmu_pt_ops {
 			struct kgsl_memdesc *memdesc,
 			unsigned int protflags);
 	int (*mmu_unmap) (void *mmu_pt,
-			struct kgsl_memdesc *memdesc);
+			struct kgsl_memdesc *memdesc,
+			unsigned int *tlb_flags);
 	void *(*mmu_create_pagetable) (void);
 	void (*mmu_destroy_pagetable) (void *pt);
 	int (*mmu_pt_equal) (struct kgsl_pagetable *pt,
