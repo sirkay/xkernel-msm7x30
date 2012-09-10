@@ -15,6 +15,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_SCARY)	+= cpufreq_scary.o
 obj-$(CONFIG_CPU_FREQ_GOV_MINMAX)	+= cpufreq_minmax.o
 obj-$(CONFIG_CPU_FREQ_GOV_LAGFREE)      += cpufreq_lagfree.o
 obj-$(CONFIG_CPU_FREQ_GOV_INTELLIDEMAND) += cpufreq_intellidemand.o
+obj-$(CONFIG_CPU_FREQ_GOV_INTELLIDEMAND2) += cpufreq_intellidemand2.o
 obj-$(CONFIG_CPU_FREQ_GOV_VIRTUOUS)	+= cpufreq_virtuous.o
 obj-$(CONFIG_CPU_FREQ_GOV_LULZACTIVE)	+= cpufreq_lulzactive.o
 obj-$(CONFIG_CPU_FREQ_GOV_LIONHEART)	+= cpufreq_lionheart.o
