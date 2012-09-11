@@ -386,6 +386,8 @@ static int kgsl_suspend_device(struct kgsl_device *device, pm_message_t state)
 			INIT_COMPLETION(device->hwaccess_gate);
 			device->ftbl->suspend_context(device);
 			device->ftbl->stop(device);
+			if (device->idle_wakelock.name)
+			  wake_unlock(&device->idle_wakelock);
 			device->state = KGSL_STATE_SUSPEND;
 			KGSL_PWR_WARN(device, "state -> SUSPEND, device %d\n",
 				device->id);
