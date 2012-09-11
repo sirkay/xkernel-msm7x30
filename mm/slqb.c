@@ -1564,8 +1564,8 @@ static __always_inline void *slab_alloc(struct kmem_cache *s,
 	lockdep_trace_alloc(gfpflags);
 	might_sleep_if(gfpflags & __GFP_WAIT);
 
-	if (should_failslab(s->objsize, gfpflags, s->flags))
-		return NULL;
+//	if (should_failslab(s->objsize, gfpflags, s->flags))
+//		return NULL;
 
 again:
 	local_irq_save(flags);
@@ -1749,7 +1749,7 @@ static __always_inline void __slab_free(struct kmem_cache *s,
 	c = get_cpu_slab(s, thiscpu);
 	l = &c->list;
 
-	slqb_stat_inc(l, FREE);
+	slqb_stat_inc(l, SLQB_FREE);
 
 	if (!NUMA_BUILD || !slab_numa(s) ||
 			likely(slqb_page_to_nid(page) == numa_node_id())) {
@@ -3624,7 +3624,7 @@ SLAB_ATTR_RO(text);						\
 STAT_ATTR(ALLOC, alloc);
 STAT_ATTR(ALLOC_SLAB_FILL, alloc_slab_fill);
 STAT_ATTR(ALLOC_SLAB_NEW, alloc_slab_new);
-STAT_ATTR(FREE, free);
+STAT_ATTR(SLQB_FREE, free);
 STAT_ATTR(FREE_REMOTE, free_remote);
 STAT_ATTR(FLUSH_FREE_LIST, flush_free_list);
 STAT_ATTR(FLUSH_FREE_LIST_OBJECTS, flush_free_list_objects);
