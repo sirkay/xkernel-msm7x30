@@ -20,8 +20,9 @@
  * Author: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
  *
  * For detailed explanation of Read-Copy Update mechanism see -
- *		Documentation/RCU
+ * 		Documentation/RCU
  */
+
 #include <linux/moduleparam.h>
 #include <linux/completion.h>
 #include <linux/interrupt.h>
@@ -45,13 +46,12 @@ struct rcu_ctrlblk {
 
 /* Definition for rcupdate control block. */
 static struct rcu_ctrlblk rcu_sched_ctrlblk = {
-	.donetail	= &rcu_sched_ctrlblk.rcucblist,
-	.curtail	= &rcu_sched_ctrlblk.rcucblist,
+	.donetail = &rcu_sched_ctrlblk.rcucblist,
+	.curtail = &rcu_sched_ctrlblk.rcucblist,
 };
-
 static struct rcu_ctrlblk rcu_bh_ctrlblk = {
-	.donetail	= &rcu_bh_ctrlblk.rcucblist,
-	.curtail	= &rcu_bh_ctrlblk.rcucblist,
+	.donetail = &rcu_bh_ctrlblk.rcucblist,
+	.curtail = &rcu_bh_ctrlblk.rcucblist,
 };
 
 #ifdef CONFIG_NO_HZ
@@ -82,7 +82,7 @@ void rcu_exit_nohz(void)
 
 /*
  * Helper function for rcu_qsctr_inc() and rcu_bh_qsctr_inc().
- * Also disable irqs to avoid confusion due to interrupt handlers
+ * Also disable irqs to avoid confusion due to interrupt handlers invoking
  * invoking call_rcu().
  */
 static int rcu_qsctr_help(struct rcu_ctrlblk *rcp)
@@ -110,7 +110,7 @@ void rcu_sched_qs(int cpu)
 {
 	if (rcu_qsctr_help(&rcu_sched_ctrlblk) +
 	    rcu_qsctr_help(&rcu_bh_ctrlblk))
-		raise_softirq(RCU_SOFTIRQ);
+	  raise_softirq(RCU_SOFTIRQ);
 }
 
 /*
