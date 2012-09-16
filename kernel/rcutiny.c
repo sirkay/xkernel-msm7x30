@@ -50,8 +50,8 @@ static struct rcu_ctrlblk rcu_sched_ctrlblk = {
 	.curtail = &rcu_sched_ctrlblk.rcucblist,
 };
 static struct rcu_ctrlblk rcu_bh_ctrlblk = {
-	.donetail = &rcu_bh_ctrlblk.rcucblist,
-	.curtail = &rcu_bh_ctrlblk.rcucblist,
+	.donetail  = &rcu_bh_ctrlblk.rcucblist,
+	.curtail  = &rcu_bh_ctrlblk.rcucblist,
 };
 
 #ifdef CONFIG_NO_HZ
@@ -82,7 +82,7 @@ void rcu_exit_nohz(void)
 
 /*
  * Helper function for rcu_qsctr_inc() and rcu_bh_qsctr_inc().
- * Also disable irqs to avoid confusion due to interrupt handlers invoking
+ * Also disable irqs to avoid confusion due to interrupt handlers
  * invoking call_rcu().
  */
 static int rcu_qsctr_help(struct rcu_ctrlblk *rcp)
