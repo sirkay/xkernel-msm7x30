@@ -16,6 +16,9 @@
 #include <linux/ioprio.h>
 #include <linux/rbtree.h>
 
+#define ASYNC			0
+#define SYNC			1
+
 #define BFQ_IOPRIO_CLASSES	3
 #define BFQ_CL_IDLE_TIMEOUT	HZ/5
 
@@ -186,7 +189,6 @@ struct bfq_group;
  * @peak_rate: peak transfer rate observed for a budget.
  * @peak_rate_samples: number of samples used to calculate @peak_rate.
  * @bfq_max_budget: maximum budget allotted to a bfq_queue before rescheduling.
- * @cic_index: use small consequent indexes as radix tree keys to reduce depth
  * @cic_list: list of all the cics active on the bfq_data device.
  * @group_list: list of all the bfq_groups active on the device.
  * @active_list: list of all the bfq_queues active on the device.
@@ -247,7 +249,6 @@ struct bfq_data {
 	u64 peak_rate;
 	bfq_service_t bfq_max_budget;
 
-	unsigned int cic_index;
 	struct list_head cic_list;
 	struct hlist_head group_list;
 	struct list_head active_list;
@@ -338,9 +339,9 @@ struct bfq_queue {
 
 	pid_t pid;
 
-	/* weight-raising fileds */
- 	u64 last_rais_start_finish, soft_rt_next_start;
- 	unsigned int raising_coeff;
+        /* weight-raising fileds */
+        u64 last_rais_start_finish, soft_rt_next_start;
+        unsigned int raising_coeff;
 };
 
 enum bfqq_state_flags {
@@ -503,14 +504,6 @@ static inline void call_for_each_cic(struct io_context *ioc,
 	rcu_read_unlock();
 }
 
-#define CIC_DEAD_KEY    1ul
-#define CIC_DEAD_INDEX_SHIFT    1
-
-static inline void *bfqd_dead_key(struct bfq_data *bfqd)
-{
-	return (void *)(bfqd->cic_index << CIC_DEAD_INDEX_SHIFT | CIC_DEAD_KEY);
-}
-
 /**
  * bfq_get_bfqd_locked - get a lock to a bfqd using a RCU protected pointer.
  * @ptr: a pointer to a bfqd.
@@ -532,15 +525,14 @@ static inline struct bfq_data *bfq_get_bfqd_locked(void **ptr,
 
 	rcu_read_lock();
 	bfqd = rcu_dereference(*(struct bfq_data **)ptr);
-
-	if (bfqd != NULL && ! ((unsigned long) bfqd & CIC_DEAD_KEY)) {
+	if (bfqd != NULL) {
 		spin_lock_irqsave(bfqd->queue->queue_lock, *flags);
 		if (*ptr == bfqd)
 			goto out;
 		spin_unlock_irqrestore(bfqd->queue->queue_lock, *flags);
+		bfqd = NULL;
 	}
 
-	bfqd = NULL;
 out:
 	rcu_read_unlock();
 	return bfqd;
